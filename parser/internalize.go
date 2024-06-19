@@ -1,17 +1,19 @@
 package parser
 
-type iid uint64
+type Iid uint64
 
+// Internalizer is an interface for a store that maps between
+// strings and internal ids.
 type Internalizer interface {
-	GetIid(string) (iid, bool)
-	GetString(iid) (string, bool)
-	Put(string) iid
+	GetIid(string) (Iid, bool)
+	GetString(Iid) (string, bool)
+	Put(string) Iid
 }
 
 type istep struct {
 	Token  Token
-	Arg    iid
-	Ivals  []iid
+	Arg    Iid
+	Ivals  []Iid
 	Svals  []string
 	Subcmd []istep
 }
@@ -46,7 +48,7 @@ func InternalizeSteps(chain []Step, is Internalizer) ([]istep, error) {
 			step = istep{
 				Token: HasBroader,
 				Arg:   iagr,
-				Ivals: []iid{ival},
+				Ivals: []Iid{ival},
 			}
 		case Or:
 			substeps, err := InternalizeSteps(s.subcmd, is)

@@ -6,22 +6,22 @@ import (
 )
 
 type IidStore struct {
-	toIid   map[string]iid
-	fromIid map[iid]string
-	Next    iid
+	toIid   map[string]Iid
+	fromIid map[Iid]string
+	Next    Iid
 }
 
-func (s *IidStore) GetIid(iri string) (iid, bool) {
+func (s *IidStore) GetIid(iri string) (Iid, bool) {
 	i, ok := s.toIid[iri]
 	return i, ok
 }
 
-func (s *IidStore) GetString(i iid) (string, bool) {
+func (s *IidStore) GetString(i Iid) (string, bool) {
 	iri, ok := s.fromIid[i]
 	return iri, ok
 }
 
-func (s *IidStore) Put(iri string) iid {
+func (s *IidStore) Put(iri string) Iid {
 	i, ok := s.toIid[iri]
 	if ok {
 		return i
@@ -35,8 +35,8 @@ func (s *IidStore) Put(iri string) iid {
 
 func NewIidStore() *IidStore {
 	is := IidStore{
-		toIid:   make(map[string]iid),
-		fromIid: make(map[iid]string),
+		toIid:   make(map[string]Iid),
+		fromIid: make(map[Iid]string),
 	}
 
 	is.Put("Error")
@@ -147,7 +147,7 @@ func TestInternalizeHasBroader(t *testing.T) {
 	x := istep{
 		Token: HasBroader,
 		Arg:   tname,
-		Ivals: []iid{tnode},
+		Ivals: []Iid{tnode},
 	}
 	s := isteps[1]
 

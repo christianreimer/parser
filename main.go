@@ -2,34 +2,31 @@ package main
 
 import (
 	"bremlin/parser"
+	"bufio"
 	"fmt"
-	"log"
+	"os"
+	"strings"
 
-	"github.com/k0kubun/pp/v3"
-	"github.com/renstrom/dedent"
+	"github.com/k0kubun/pp"
 )
 
 func main() {
-	cmd := `
-		Start[iri]
-		.Or(
-			HasType[Gremlin]
-			.HasType[GooGrok]
-		)
-		.HasValue[FurColor, "green", "blue"]
-		.And(
-			InScheme[<http://example.org/Animals>]
-			.HasBroader[<http://example.org/Fantasy>, <http://example.org/Preditor>]
-		)
-		.Follow[SmellOfFood]
-		.HasType[TastyMeal]				
-		.Eval`
-
-	fmt.Printf("Command:%s\n\n", dedent.Dedent(cmd))
+	fmt.Println("Enter Bremlin command:")
+	scanner := bufio.NewScanner(os.Stdin)
+	var lines []string
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			break
+		}
+		lines = append(lines, line)
+	}
+	cmd := strings.Join(lines, "\n")
 
 	chain, err := parser.ParseCommand(cmd)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Error: %s\n", err)
+	} else {
+		pp.Println(chain)
 	}
-	pp.Printf("Step Chain:\n%s\n", chain)
 }
