@@ -2,25 +2,34 @@ package main
 
 import (
 	"bremlin/parser"
+	"fmt"
 	"log"
 
 	"github.com/k0kubun/pp/v3"
+	"github.com/renstrom/dedent"
 )
 
 func main() {
 	cmd := `
 		Start[iri]
-			.HasType[<https://bsm.bloomberg.com/ontology/Company>]
-			.HasValue[field1, "value1", "3.14"]
-			.Or(
-				HasType[TypeOr1]. HasType[TypeOr2]
-			)
-			.And(HasType[TypeAnd1].HasType[TypeAnd2])
-			.Eval`
+		.Or(
+			HasType[Gremlin]
+			.HasType[GooGrok]
+		)
+		.HasValue[FurColor, "green", "blue"]
+		.And(
+			InScheme[<http://example.org/Animals>]
+			.HasBroader[<http://example.org/Fantasy>, <http://example.org/Preditor>]
+		)
+		.Follow[SmellOfFood]
+		.HasType[TastyMeal]				
+		.Eval`
+
+	fmt.Printf("Command:%s\n\n", dedent.Dedent(cmd))
 
 	chain, err := parser.ParseCommand(cmd)
 	if err != nil {
 		log.Fatal(err)
 	}
-	pp.Println(chain)
+	pp.Printf("Step Chain:\n%s\n", chain)
 }

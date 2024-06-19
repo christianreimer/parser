@@ -343,6 +343,7 @@ func convertIris(cmd string) string {
 	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/2002/07/owl#", "owl:")
 	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
 	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
+	cmd = strings.ReplaceAll(cmd, "http://example.org/", "ex:")
 	return cmd
 }
 

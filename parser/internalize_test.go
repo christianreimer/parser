@@ -88,10 +88,7 @@ func TestInternalizeIsInstanceCmd(t *testing.T) {
 	}
 	s := isteps[1]
 
-	if s.Token != x.Token ||
-		s.Arg != x.Arg ||
-		!reflect.DeepEqual(s.Svals, x.Svals) ||
-		!reflect.DeepEqual(s.Ivals, x.Ivals) {
+	if !reflect.DeepEqual(s, x) {
 		t.Errorf("Expected %+v got %+v", x, s)
 	}
 }
@@ -122,10 +119,7 @@ func TestInternalizeHasValueCmd(t *testing.T) {
 	}
 	s := isteps[1]
 
-	if s.Token != x.Token ||
-		s.Arg != x.Arg ||
-		!reflect.DeepEqual(s.Svals, x.Svals) ||
-		!reflect.DeepEqual(s.Ivals, x.Ivals) {
+	if !reflect.DeepEqual(s, x) {
 		t.Errorf("Expected %+v got %+v", x, s)
 	}
 }
@@ -157,10 +151,7 @@ func TestInternalizeHasBroader(t *testing.T) {
 	}
 	s := isteps[1]
 
-	if s.Token != x.Token ||
-		s.Arg != x.Arg ||
-		!reflect.DeepEqual(s.Svals, x.Svals) ||
-		!reflect.DeepEqual(s.Ivals, x.Ivals) {
+	if !reflect.DeepEqual(s, x) {
 		t.Errorf("Expected %+v got %+v", x, s)
 	}
 }
@@ -200,11 +191,7 @@ func TestInternalizeOrCmd(t *testing.T) {
 	}
 	s := isteps[1]
 
-	if s.Token != x.Token ||
-		s.Arg != x.Arg ||
-		!reflect.DeepEqual(s.Svals, x.Svals) ||
-		!reflect.DeepEqual(s.Ivals, x.Ivals) ||
-		!reflect.DeepEqual(s.Subcmd, x.Subcmd) {
+	if !reflect.DeepEqual(s, x) {
 		t.Errorf("Expected %+v got %+v", x, s)
 	}
 }

@@ -1,6 +1,6 @@
 package parser
 
-type iid uint32
+type iid uint64
 
 type Internalizer interface {
 	GetIid(string) (iid, bool)
