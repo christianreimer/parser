@@ -340,6 +340,30 @@ func TestFollowInverse(t *testing.T) {
 	}
 }
 
+func TestHasCategory(t *testing.T) {
+	cmd := `Start[iri].HasCategory[cat].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: HasCategory, arg: "cat"},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
 func TestIsActive(t *testing.T) {
 	cmd := `Start[iri].IsActive[].Eval`
 	chain, err := ParseCommand(cmd)

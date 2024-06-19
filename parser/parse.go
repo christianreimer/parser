@@ -156,6 +156,18 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		}, inor, nil
 	}
 
+	if strings.HasPrefix(cmd, "HasCategory") {
+		// HasCategory takes a single argument which is a category iid
+		t, arg, err := parseSingleArgStep(cmd)
+		if err != nil {
+			return Step{}, inor, fmt.Errorf("failed to parse HasCategory (%s)", cmd)
+		}
+		return Step{
+			token: atot(t),
+			arg:   arg,
+		}, inor, nil
+	}
+
 	if strings.HasPrefix(cmd, "HasValue") {
 		// HasValue takes a field name and a list of values
 		t, args, err := parseMultiArgStep(cmd, 2, -1)
@@ -473,6 +485,7 @@ const (
 	Start
 	Eval
 	HasType
+	HasCategory
 	HasValue
 	InScheme
 	HasBroader
@@ -484,7 +497,7 @@ const (
 	Or
 )
 
-// String (ASCII)to token
+// ASCII string to token
 func atot(s string) Token {
 	switch s {
 	case "Start":
@@ -493,6 +506,8 @@ func atot(s string) Token {
 		return Eval
 	case "HasType":
 		return HasType
+	case "HasCategory":
+		return HasCategory
 	case "HasValue":
 		return HasValue
 	case "InScheme":
@@ -516,7 +531,7 @@ func atot(s string) Token {
 	}
 }
 
-// Token to string (ASCII)
+// Token to ASCII string
 func ttoa(t Token) string {
 	switch t {
 	case Start:
@@ -525,6 +540,8 @@ func ttoa(t Token) string {
 		return "Eval"
 	case HasType:
 		return "HasType"
+	case HasCategory:
+		return "HasCategory"
 	case HasValue:
 		return "HasValue"
 	case InScheme:

@@ -27,7 +27,7 @@ func InternalizeSteps(chain []Step, is Internalizer) ([]istep, error) {
 			step = istep{
 				Token: s.token,
 			}
-		case HasType, IsInstance, Follow, FollowInverse, InScheme:
+		case HasType, HasCategory, IsInstance, Follow, FollowInverse, InScheme:
 			iarg := is.Put(s.arg)
 			step = istep{
 				Token: s.token,
