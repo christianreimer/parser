@@ -48,9 +48,11 @@ func ParseCommand(cmd string) ([]Step, error) {
 		token: Start,
 		arg:   "iri",
 	}
+
 	eval := Step{
 		token: Eval,
 	}
+
 	chain := make([]Step, 2+len(subchain))
 	chain[0] = start
 	copy(chain[1:], subchain)
@@ -68,7 +70,6 @@ func parseSubCommand(cmd string, inor bool) ([]Step, error) {
 			return chain, err
 		}
 
-		// Ignore empty steps
 		if step.token != NoOp {
 			chain = append(chain, step)
 		}
@@ -85,8 +86,8 @@ func parseSubCommand(cmd string, inor bool) ([]Step, error) {
 
 // Parses the body of a command, breaking it into steps.
 func parseBody(cmd string, inor bool) (Step, string, bool, error) {
-	iq := false // inside quotes
 	io := inor  // inside or
+	iq := false // inside quotes
 	is := false // inside square brackets
 	buf := make([]rune, 0)
 
@@ -98,14 +99,6 @@ func parseBody(cmd string, inor bool) (Step, string, bool, error) {
 			is = !is
 		case '.':
 			if iq {
-				continue
-			}
-			c := cmd[:i]
-			cmd = cmd[i+1:]
-			s, io, err := parseStep(c, io)
-			return s, cmd, io, err
-		case ',':
-			if io || is {
 				continue
 			}
 			c := cmd[:i]
@@ -152,26 +145,6 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		}, inor, nil
 	}
 
-	if strings.HasPrefix(cmd, "Or") {
-		// Or takes a subcommand as its only argument
-		cmd := strings.Replace(cmd, "Or(", "", 1)
-		i, ok := findNextStandaloneRune(cmd, ')')
-		var subcmd string
-		if !ok {
-			subcmd = cmd
-		} else {
-			subcmd = cmd[:i]
-		}
-		clist, err := parseSubCommand(subcmd, true)
-		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse Or (%s)", err)
-		}
-		return Step{
-			token:  Or,
-			subcmd: clist,
-		}, inor, nil
-	}
-
 	if strings.HasPrefix(cmd, "IsActive") {
 		// IsActive takes no arguments
 		t, err := parseNoArgStep(cmd)
@@ -196,7 +169,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 
 	if strings.HasPrefix(cmd, "HasType") {
 		// HasType takes a single argument which is a type iri
-		t, arg, err := parseSingeArgStep(cmd)
+		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse HasType (%s)", cmd)
 		}
@@ -208,7 +181,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 
 	if strings.HasPrefix(cmd, "HasValue") {
 		// HasValue takes a field name and a list of values
-		t, args, err := parseMultiArgStep(cmd)
+		t, args, err := parseMultiArgStep(cmd, 2, -1)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse HasValue (%s)", cmd)
 		}
@@ -221,7 +194,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 
 	if strings.HasPrefix(cmd, "InScheme") {
 		// InScheme takes a single argument which is a taxonomy iri
-		t, arg, err := parseSingeArgStep(cmd)
+		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse InScheme (%s)", cmd)
 		}
@@ -234,7 +207,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 	if strings.HasPrefix(cmd, "HasBroader") {
 		// HasBroader takes two arguments, the first is the taxonomy iri the second
 		// is the tatget node
-		t, args, err := parseMultiArgStep(cmd)
+		t, args, err := parseMultiArgStep(cmd, 2, 2)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse HasBroader (%s)", cmd)
 		}
@@ -250,7 +223,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 
 	if strings.HasPrefix(cmd, "IsInstance") {
 		// IsInstance takes a single argument which is the instance iri
-		t, arg, err := parseSingeArgStep(cmd)
+		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse IsInstance (%s)", cmd)
 		}
@@ -263,7 +236,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 	if strings.HasPrefix(cmd, "Follow") || strings.HasPrefix(cmd, "FollowInverse") {
 		// Follow and FollowInverse both take a single argument which is the
 		// relationship iri
-		t, arg, err := parseSingeArgStep(cmd)
+		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
 			return Step{}, inor, fmt.Errorf("failed to parse Follow (%s)", cmd)
 		}
@@ -288,19 +261,16 @@ func parseNoArgStep(cmd string) (string, error) {
 }
 
 // Parse a step with a single argument.
-func parseSingeArgStep(cmd string) (string, string, error) {
-	token, arg := splitOnRune(cmd, '[')
-
-	i, ok := findNext(arg, ']')
-	if !ok {
-		return "", "", fmt.Errorf("expected Token[arg] got %s", cmd)
+func parseSingleArgStep(cmd string) (string, string, error) {
+	token, args, err := parseMultiArgStep(cmd, 1, 1)
+	if err != nil {
+		return "", "", err
 	}
-	arg = removeOuterQuotes(arg[:i])
-	return token, arg, nil
+	return token, args[0], nil
 }
 
 // Parse a step that can take multiple argument.
-func parseMultiArgStep(cmd string) (string, []string, error) {
+func parseMultiArgStep(cmd string, min, max int) (string, []string, error) {
 	token, args := splitOnRune(cmd, '[')
 
 	i, ok := findNext(args, ']')
@@ -326,6 +296,14 @@ func parseMultiArgStep(cmd string) (string, []string, error) {
 		if !ok {
 			break
 		}
+	}
+
+	if len(argl) < min {
+		return "", nil, fmt.Errorf("expected at least %d arguments got %d in %s", min, len(argl), cmd)
+	}
+
+	if max != -1 && len(argl) > max {
+		return "", nil, fmt.Errorf("expected at most %d arguments got %d in %s", max, len(argl), cmd)
 	}
 
 	return token, argl, nil
@@ -536,5 +514,39 @@ func atot(s string) Token {
 		return Or
 	default:
 		return 0
+	}
+}
+
+// Token to string (ASCII)
+func ttoa(t Token) string {
+	switch t {
+	case Start:
+		return "Start"
+	case Eval:
+		return "Eval"
+	case HasType:
+		return "HasType"
+	case HasValue:
+		return "HasValue"
+	case InScheme:
+		return "InScheme"
+	case HasBroader:
+		return "HasBroader"
+	case IsInstance:
+		return "IsInstance"
+	case Follow:
+		return "Follow"
+	case FollowInverse:
+		return "FollowInverse"
+	case IsActive:
+		return "IsActive"
+	case IsInactive:
+		return "IsInactive"
+	case Or:
+		return "Or"
+	case NoOp:
+		return "NoOp"
+	default:
+		return "**error**"
 	}
 }

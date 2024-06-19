@@ -43,7 +43,7 @@ func TestFindNext(t *testing.T) {
 	}
 }
 
-func TestRuleWithHasValue(t *testing.T) {
+func TestHasValue(t *testing.T) {
 	cmd := `Start[iri].HasValue[field1, value1, "3.14", "value with \" in it"].Eval`
 	chain, err := ParseCommand(cmd)
 	if err != nil {
@@ -67,7 +67,7 @@ func TestRuleWithHasValue(t *testing.T) {
 	}
 }
 
-func TestRuleWithAnd(t *testing.T) {
+func TestAnd(t *testing.T) {
 	cmd := `Start[iri].And(HasType[TypeAnd1].HasType[TypeAnd2]).Eval`
 	chain, err := ParseCommand(cmd)
 	if err != nil {
@@ -92,7 +92,7 @@ func TestRuleWithAnd(t *testing.T) {
 	}
 }
 
-func TestRuleWithOr(t *testing.T) {
+func TestOr(t *testing.T) {
 	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2]).Eval`
 	chain, err := ParseCommand(cmd)
 	if err != nil {
@@ -127,7 +127,43 @@ func TestRuleWithOr(t *testing.T) {
 	}
 }
 
-func TestRuleWithAndInsideOr(t *testing.T) {
+func TestOrWithModeCmd(t *testing.T) {
+	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2]).HasType[Type3].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 4 {
+		t.Errorf("Expected 4 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: Or, arg: ""},
+		{token: HasType, arg: "Type3"},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+
+	expected = []Step{
+		{token: HasType, arg: "TypeOr1"},
+		{token: HasType, arg: "TypeOr2"},
+	}
+
+	for i, e := range expected {
+		if chain[1].subcmd[i].token != e.token || chain[1].subcmd[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[1].subcmd[i], i)
+		}
+	}
+}
+
+func TestAndInsideOr(t *testing.T) {
 	cmd := `Start[iri].Or(HasType[TypeOr1].And(HasType[TypeAnd1].HasType[TypeAnd2])).Eval`
 	chain, err := ParseCommand(cmd)
 	if err != nil {
@@ -160,14 +196,6 @@ func TestRuleWithAndInsideOr(t *testing.T) {
 		if chain[1].subcmd[i].token != e.token || chain[1].subcmd[i].arg != e.arg {
 			t.Errorf("expected %+v got %+v in step %d", e, chain[1].subcmd[i], i)
 		}
-	}
-}
-
-func TestTestInvalidRule1(t *testing.T) {
-	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2].Eval`
-	_, err := ParseCommand(cmd)
-	if err == nil {
-		t.Errorf("Expected error when parsing %s", cmd)
 	}
 }
 
@@ -309,5 +337,215 @@ func TestFollowInverse(t *testing.T) {
 		if chain[i].token != e.token || chain[i].arg != e.arg {
 			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
 		}
+	}
+}
+
+func TestIsActive(t *testing.T) {
+	cmd := `Start[iri].IsActive[].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: IsActive},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
+func TestIsInactive(t *testing.T) {
+	cmd := `Start[iri].IsInactive[].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: IsInactive},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
+func TestCommaInsideString(t *testing.T) {
+	cmd := `Start[iri].HasValue[field1, "value1, with comma", "3.14"].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: HasValue, arg: "field1", vals: []string{"value1, with comma", "\"3.14\""}},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
+func TestSpaceInsideString(t *testing.T) {
+	cmd := `Start[iri].HasValue[field1, "value1 with space", "3.14"].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: HasValue, arg: "field1", vals: []string{"value1 with space", "\"3.14\""}},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
+func TestParenInTaxonomyName(t *testing.T) {
+	cmd := `Start[iri].HasBroader["tax (with paren)", "instance"].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: HasBroader, arg: "tax (with paren)", vals: []string{"instance"}},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+	}
+}
+
+func TestStripQuotesFromValue(t *testing.T) {
+	cmd := `Start[iri].HasValue[field1, "3.14"].Eval`
+	chain, err := ParseCommand(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if len(chain) != 3 {
+		t.Errorf("Expected 3 steps, got %d", len(chain))
+	}
+
+	expected := []Step{
+		{token: Start, arg: "iri"},
+		{token: HasValue, arg: "field1", vals: []string{"3.14"}},
+		{token: Eval},
+	}
+
+	for i, e := range expected {
+		if chain[i].token != e.token || chain[i].arg != e.arg {
+			t.Errorf("expected %+v got %+v in step %d", e, chain[i], i)
+		}
+
+		if len(chain[i].vals) != len(e.vals) {
+			t.Errorf("expected %d values got %d", len(e.vals), len(chain[i].vals))
+		}
+
+		for j, v := range e.vals {
+			if chain[i].vals[j] != v {
+				t.Errorf("expected %s got %s", v, chain[i].vals[j])
+			}
+		}
+	}
+}
+
+func TestInvalidRule1(t *testing.T) {
+	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestInvalidRuleUnquotedPeriod(t *testing.T) {
+	cmd := `Start[iri].HasValue[field, 3.14].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestInvalidRuleMissingValue(t *testing.T) {
+	cmd := `Start[iri].HasValue[field].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestInvalidRuleTooManyArgs(t *testing.T) {
+	cmd := `Start[iri].InScheme[v1,v2,v3].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestMismatchParen1(t *testing.T) {
+	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestMismatchParen2(t *testing.T) {
+	cmd := `Start[iri].Or(HasType[TypeOr1].HasType[TypeOr2]).Eval)`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestMismatchParent3(t *testing.T) {
+	cmd := `Start[iri].Or((HasType[TypeOr1].HasType[TypeOr2].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
 	}
 }
