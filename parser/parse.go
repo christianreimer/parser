@@ -251,45 +251,45 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 
 // Parse a step with no arguments.
 func parseNoArgStep(cmd string) (string, error) {
-	token, arg := splitOnRune(cmd, '[')
+	head, tail := splitOnRune(cmd, '[')
 
-	if arg != "]" {
+	if tail != "]" {
 		return "", fmt.Errorf("expected Token[] got %s", cmd)
 	}
 
-	return token, nil
+	return head, nil
 }
 
 // Parse a step with a single argument.
 func parseSingleArgStep(cmd string) (string, string, error) {
-	token, args, err := parseMultiArgStep(cmd, 1, 1)
+	head, tail, err := parseMultiArgStep(cmd, 1, 1)
 	if err != nil {
 		return "", "", err
 	}
-	return token, args[0], nil
+	return head, tail[0], nil
 }
 
 // Parse a step that can take multiple argument.
 func parseMultiArgStep(cmd string, min, max int) (string, []string, error) {
-	token, args := splitOnRune(cmd, '[')
+	head, tail := splitOnRune(cmd, '[')
 
-	i, ok := findNext(args, ']')
+	i, ok := findNext(tail, ']')
 	if !ok {
 		return "", nil, fmt.Errorf("expected Token[arg,...] got %s", cmd)
 	}
-	args = args[:i]
+	tail = tail[:i]
 
 	// Split args on commas
 	argl := make([]string, 0)
 	var arg string
 	for {
-		i, ok := findNext(args, ',')
-		if !ok && len(args) > 0 {
+		i, ok := findNext(tail, ',')
+		if !ok && len(tail) > 0 {
 			// want to get the last argument in the list
-			arg = args
+			arg = tail
 		} else {
-			arg = args[:i]
-			args = args[i+1:]
+			arg = tail[:i]
+			tail = tail[i+1:]
 		}
 		arg = removeOuterQuotes(arg)
 		argl = append(argl, arg)
@@ -306,7 +306,7 @@ func parseMultiArgStep(cmd string, min, max int) (string, []string, error) {
 		return "", nil, fmt.Errorf("expected at most %d arguments got %d in %s", max, len(argl), cmd)
 	}
 
-	return token, argl, nil
+	return head, argl, nil
 }
 
 func cleanCmd(cmd string) (string, error) {
@@ -345,12 +345,15 @@ func cleanCmd(cmd string) (string, error) {
 	return cmd, nil
 }
 
-// Converts the IRIs to qnames.
+// Converts the iris to qnames.
 func convertIris(cmd string) string {
 	cmd = strings.ReplaceAll(cmd, "<", "")
 	cmd = strings.ReplaceAll(cmd, ">", "")
 	cmd = strings.ReplaceAll(cmd, "https://bsm.bloomberg.com/ontology/", "bsm:")
 	cmd = strings.ReplaceAll(cmd, "https://bsm.bloomberg.com/instance/", "bsi:")
+	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/2002/07/owl#", "owl:")
+	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
+	cmd = strings.ReplaceAll(cmd, "http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
 	return cmd
 }
 

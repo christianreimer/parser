@@ -388,6 +388,71 @@ func TestIsInactive(t *testing.T) {
 	}
 }
 
+func TestIriToQnameBsm(t *testing.T) {
+	cmd := `Start[iri].HasType[<https://bsm.bloomberg.com/ontology/Company>].Eval`
+	cmd, err := cleanCmd(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expected := "HasType[bsm:Company]"
+	if cmd != expected {
+		t.Errorf("Expected %s got %s", expected, cmd)
+	}
+}
+
+func TestIriToQnameInstance(t *testing.T) {
+	cmd := `Start[iri].IsInstance[<https://bsm.bloomberg.com/instance/0xdecafbad>].Eval`
+	cmd, err := cleanCmd(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expected := "IsInstance[bsi:0xdecafbad]"
+	if cmd != expected {
+		t.Errorf("Expected %s got %s", expected, cmd)
+	}
+}
+
+func TestIriToQnameOwl(t *testing.T) {
+	cmd := `Start[iri].HasType[<http://www.w3.org/2002/07/owl#Thing>].Eval`
+	cmd, err := cleanCmd(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expected := "HasType[owl:Thing]"
+	if cmd != expected {
+		t.Errorf("Expected %s got %s", expected, cmd)
+	}
+}
+
+func TestIriToQnameRdfs(t *testing.T) {
+	cmd := `Start[iri].HasType[<http://www.w3.org/2000/01/rdf-schema#Class>].Eval`
+	cmd, err := cleanCmd(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expected := "HasType[rdfs:Class]"
+	if cmd != expected {
+		t.Errorf("Expected %s got %s", expected, cmd)
+	}
+}
+
+func TestIriToQnameRdf(t *testing.T) {
+	cmd := `Start[iri].HasType[<http://www.w3.org/1999/02/22-rdf-syntax-ns#Property>].Eval`
+	cmd, err := cleanCmd(cmd)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	expected := "HasType[rdf:Property]"
+	if cmd != expected {
+		t.Errorf("Expected %s got %s", expected, cmd)
+	}
+}
+
 func TestCommaInsideString(t *testing.T) {
 	cmd := `Start[iri].HasValue[field1, "value1, with comma", "3.14"].Eval`
 	chain, err := ParseCommand(cmd)
