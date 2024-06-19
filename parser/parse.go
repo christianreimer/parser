@@ -12,25 +12,6 @@ type Step struct {
 	subcmd []Step
 }
 
-type Token int
-
-const (
-	_ Token = iota
-	NoOp
-	Start
-	Eval
-	HasType
-	HasValue
-	InScheme
-	HasBroader
-	IsInstance
-	Follow
-	FollowInverse
-	IsActive
-	IsInactive
-	Or
-)
-
 // Parses the full command, including the Start and Eval clauses and
 // returns a list of steps to be executed.
 func ParseCommand(cmd string) ([]Step, error) {
@@ -121,10 +102,6 @@ func parseBody(cmd string, inor bool) (Step, string, bool, error) {
 				return Step{}, cmd, io, err
 			}
 			cmd = cmd[i+1:]
-			// if there is more command after or, then eat the . as well
-			if len(cmd) > 1 && cmd[0] == '.' {
-				cmd = cmd[1:]
-			}
 			return Step{
 				token:  Or,
 				subcmd: s,
@@ -487,6 +464,25 @@ func findNext(cmd string, term rune) (int, bool) {
 	}
 	return 0, false
 }
+
+type Token int
+
+const (
+	_ Token = iota
+	NoOp
+	Start
+	Eval
+	HasType
+	HasValue
+	InScheme
+	HasBroader
+	IsInstance
+	Follow
+	FollowInverse
+	IsActive
+	IsInactive
+	Or
+)
 
 // String (ASCII)to token
 func atot(s string) Token {
