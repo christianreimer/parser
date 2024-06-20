@@ -6,7 +6,7 @@ import (
 )
 
 type Step struct {
-	token  Token
+	token  string
 	arg    string
 	vals   []string
 	subcmd []Step
@@ -26,12 +26,12 @@ func ParseCommand(cmd string) ([]Step, error) {
 	}
 
 	start := Step{
-		token: Start,
+		token: "Start",
 		arg:   "iri",
 	}
 
 	eval := Step{
-		token: Eval,
+		token: "Eval",
 	}
 
 	chain := make([]Step, 2+len(subchain))
@@ -51,7 +51,7 @@ func parseSubCommand(cmd string, inor bool) ([]Step, error) {
 			return chain, err
 		}
 
-		if step.token != NoOp {
+		if step.token != "NoOp" {
 			chain = append(chain, step)
 		}
 
@@ -103,7 +103,7 @@ func parseBody(cmd string, inor bool) (Step, string, bool, error) {
 			}
 			cmd = cmd[i+1:]
 			return Step{
-				token:  Or,
+				token:  "Or",
 				subcmd: s,
 			}, cmd, io, err
 		default:
@@ -118,7 +118,7 @@ func parseBody(cmd string, inor bool) (Step, string, bool, error) {
 func parseStep(cmd string, inor bool) (Step, bool, error) {
 	if cmd == "" {
 		return Step{
-			token: NoOp,
+			token: "NoOp",
 		}, inor, nil
 	}
 
@@ -129,7 +129,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 			return Step{}, inor, fmt.Errorf("failed to parse IsActive (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 		}, inor, nil
 	}
 
@@ -140,7 +140,7 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 			return Step{}, inor, fmt.Errorf("failed to parse IsInactive (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 		}, inor, nil
 	}
 
@@ -148,10 +148,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// HasType takes a single argument which is a type iri
 		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse HasType (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse HasType (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   arg,
 		}, inor, nil
 	}
@@ -160,10 +160,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// HasCategory takes a single argument which is a category iid
 		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse HasCategory (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse HasCategory (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   arg,
 		}, inor, nil
 	}
@@ -172,10 +172,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// HasValue takes a field name and a list of values
 		t, args, err := parseMultiArgStep(cmd, 2, -1)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse HasValue (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse HasValue (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   args[0],
 			vals:  args[1:],
 		}, inor, nil
@@ -185,10 +185,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// InScheme takes a single argument which is a taxonomy iri
 		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse InScheme (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse InScheme (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   arg,
 		}, inor, nil
 	}
@@ -198,13 +198,13 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// is the tatget node
 		t, args, err := parseMultiArgStep(cmd, 2, 2)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse HasBroader (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse HasBroader (%s)", err)
 		}
 		if len(args) != 2 {
 			return Step{}, inor, fmt.Errorf("expected HasBroader[taxonomy, target] got %s", cmd)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   args[0],
 			vals:  []string{args[1]},
 		}, inor, nil
@@ -214,10 +214,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// IsInstance takes a single argument which is the instance iri
 		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse IsInstance (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse IsInstance (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   arg,
 		}, inor, nil
 	}
@@ -227,10 +227,10 @@ func parseStep(cmd string, inor bool) (Step, bool, error) {
 		// relationship iri
 		t, arg, err := parseSingleArgStep(cmd)
 		if err != nil {
-			return Step{}, inor, fmt.Errorf("failed to parse Follow (%s)", cmd)
+			return Step{}, inor, fmt.Errorf("failed to parse Follow (%s)", err)
 		}
 		return Step{
-			token: atot(t),
+			token: t,
 			arg:   arg,
 		}, inor, nil
 	}
@@ -264,7 +264,11 @@ func parseMultiArgStep(cmd string, min, max int) (string, []string, error) {
 
 	i, ok := findNext(tail, ']')
 	if !ok {
-		return "", nil, fmt.Errorf("expected Token[arg,...] got %s", cmd)
+		if max == 1 {
+			return "", nil, fmt.Errorf("expected Token[arg] got %s", cmd)
+		} else {
+			return "", nil, fmt.Errorf("expected Token[arg,...] got %s", cmd)
+		}
 	}
 	tail = tail[:i]
 
@@ -274,14 +278,21 @@ func parseMultiArgStep(cmd string, min, max int) (string, []string, error) {
 	for {
 		i, ok := findNext(tail, ',')
 		if !ok && len(tail) > 0 {
-			// want to get the last argument in the list
+			// want to include the last argument in the list
 			arg = tail
 		} else {
 			arg = tail[:i]
-			tail = tail[i+1:]
+			if len(tail) >= i+1 {
+				tail = tail[i+1:]
+			} else {
+				tail = ""
+			}
 		}
 		arg = removeOuterQuotes(arg)
-		argl = append(argl, arg)
+		if len(arg) > 0 {
+			argl = append(argl, arg)
+		}
+
 		if !ok {
 			break
 		}
@@ -476,94 +487,4 @@ func findNext(cmd string, term rune) (int, bool) {
 		}
 	}
 	return 0, false
-}
-
-type Token int
-
-const (
-	_ Token = iota
-	NoOp
-	Start
-	Eval
-	HasType
-	HasCategory
-	HasValue
-	InScheme
-	HasBroader
-	IsInstance
-	Follow
-	FollowInverse
-	IsActive
-	IsInactive
-	Or
-)
-
-// ASCII string to token
-func atot(s string) Token {
-	switch s {
-	case "Start":
-		return Start
-	case "Eval":
-		return Eval
-	case "HasType":
-		return HasType
-	case "HasCategory":
-		return HasCategory
-	case "HasValue":
-		return HasValue
-	case "InScheme":
-		return InScheme
-	case "HasBroader":
-		return HasBroader
-	case "IsInstance":
-		return IsInstance
-	case "Follow":
-		return Follow
-	case "FollowInverse":
-		return FollowInverse
-	case "IsActive":
-		return IsActive
-	case "IsInactive":
-		return IsInactive
-	case "Or":
-		return Or
-	default:
-		return 0
-	}
-}
-
-// Token to ASCII string
-func ttoa(t Token) string {
-	switch t {
-	case Start:
-		return "Start"
-	case Eval:
-		return "Eval"
-	case HasType:
-		return "HasType"
-	case HasCategory:
-		return "HasCategory"
-	case HasValue:
-		return "HasValue"
-	case InScheme:
-		return "InScheme"
-	case HasBroader:
-		return "HasBroader"
-	case IsInstance:
-		return "IsInstance"
-	case Follow:
-		return "Follow"
-	case FollowInverse:
-		return "FollowInverse"
-	case IsActive:
-		return "IsActive"
-	case IsInactive:
-		return "IsInactive"
-	case Or:
-		return "Or"
-	case NoOp:
-		return "NoOp"
-	default:
-		return "**error**"
-	}
 }

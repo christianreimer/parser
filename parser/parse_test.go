@@ -16,8 +16,8 @@ func TestMinimalRule(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -55,9 +55,9 @@ func TestHasValue(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasValue, arg: "field1", vals: []string{"value1", "\"3.14\"", "value with \" in it"}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasValue", arg: "field1", vals: []string{"value1", "\"3.14\"", "value with \" in it"}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -79,10 +79,10 @@ func TestAnd(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasType, arg: "TypeAnd1"},
-		{token: HasType, arg: "TypeAnd2"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasType", arg: "TypeAnd1"},
+		{token: "HasType", arg: "TypeAnd2"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -104,9 +104,9 @@ func TestOr(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: Or, arg: ""},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "Or", arg: ""},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -116,8 +116,8 @@ func TestOr(t *testing.T) {
 	}
 
 	expected = []Step{
-		{token: HasType, arg: "TypeOr1"},
-		{token: HasType, arg: "TypeOr2"},
+		{token: "HasType", arg: "TypeOr1"},
+		{token: "HasType", arg: "TypeOr2"},
 	}
 
 	for i, e := range expected {
@@ -139,10 +139,10 @@ func TestOrWithModeCmd(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: Or, arg: ""},
-		{token: HasType, arg: "Type3"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "Or", arg: ""},
+		{token: "HasType", arg: "Type3"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -152,8 +152,8 @@ func TestOrWithModeCmd(t *testing.T) {
 	}
 
 	expected = []Step{
-		{token: HasType, arg: "TypeOr1"},
-		{token: HasType, arg: "TypeOr2"},
+		{token: "HasType", arg: "TypeOr1"},
+		{token: "HasType", arg: "TypeOr2"},
 	}
 
 	for i, e := range expected {
@@ -175,9 +175,9 @@ func TestAndInsideOr(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: Or, arg: ""},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "Or", arg: ""},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -187,9 +187,9 @@ func TestAndInsideOr(t *testing.T) {
 	}
 
 	expected = []Step{
-		{token: HasType, arg: "TypeOr1"},
-		{token: HasType, arg: "TypeAnd1"},
-		{token: HasType, arg: "TypeAnd2"},
+		{token: "HasType", arg: "TypeOr1"},
+		{token: "HasType", arg: "TypeAnd1"},
+		{token: "HasType", arg: "TypeAnd2"},
 	}
 
 	for i, e := range expected {
@@ -232,9 +232,9 @@ func TestHasBroader(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasBroader, arg: "tax", vals: []string{"target"}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasBroader", arg: "tax", vals: []string{"target"}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -256,9 +256,9 @@ func TestInScheme(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: InScheme, arg: "tax"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "InScheme", arg: "tax"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -280,9 +280,9 @@ func TestIsInstance(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: IsInstance, arg: "inst"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "IsInstance", arg: "inst"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -304,9 +304,9 @@ func TestFollow(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: Follow, arg: "rel"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "Follow", arg: "rel"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -328,9 +328,9 @@ func TestFollowInverse(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: FollowInverse, arg: "rel"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "FollowInverse", arg: "rel"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -352,9 +352,9 @@ func TestHasCategory(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasCategory, arg: "cat"},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasCategory", arg: "cat"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -376,9 +376,9 @@ func TestIsActive(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: IsActive},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "IsActive"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -400,9 +400,9 @@ func TestIsInactive(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: IsInactive},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "IsInactive"},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -489,9 +489,9 @@ func TestCommaInsideString(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasValue, arg: "field1", vals: []string{"value1, with comma", "\"3.14\""}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasValue", arg: "field1", vals: []string{"value1, with comma", "\"3.14\""}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -513,9 +513,9 @@ func TestSpaceInsideString(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasValue, arg: "field1", vals: []string{"value1 with space", "\"3.14\""}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasValue", arg: "field1", vals: []string{"value1 with space", "\"3.14\""}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -537,9 +537,9 @@ func TestParenInTaxonomyName(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasBroader, arg: "tax (with paren)", vals: []string{"instance"}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasBroader", arg: "tax (with paren)", vals: []string{"instance"}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -561,9 +561,9 @@ func TestStripQuotesFromValue(t *testing.T) {
 	}
 
 	expected := []Step{
-		{token: Start, arg: "iri"},
-		{token: HasValue, arg: "field1", vals: []string{"3.14"}},
-		{token: Eval},
+		{token: "Start", arg: "iri"},
+		{token: "HasValue", arg: "field1", vals: []string{"3.14"}},
+		{token: "Eval"},
 	}
 
 	for i, e := range expected {
@@ -633,6 +633,14 @@ func TestMismatchParen2(t *testing.T) {
 
 func TestMismatchParent3(t *testing.T) {
 	cmd := `Start[iri].Or((HasType[TypeOr1].HasType[TypeOr2].Eval`
+	_, err := ParseCommand(cmd)
+	if err == nil {
+		t.Errorf("Expected error when parsing %s", cmd)
+	}
+}
+
+func TestHasTypeNoArg(t *testing.T) {
+	cmd := `Start[iri].HasType[].Eval`
 	_, err := ParseCommand(cmd)
 	if err == nil {
 		t.Errorf("Expected error when parsing %s", cmd)

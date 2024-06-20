@@ -3,7 +3,7 @@
 ## Bremlin Parser
 
 ```
-Command:
+Enter Bremlin command:
 Start[iri]
 .Or(
         HasType[Gremlin]
@@ -18,73 +18,72 @@ Start[iri]
 .HasType[TastyMeal]
 .Eval
 
-Step Chain:
 []parser.Step{
   parser.Step{
-    token:  2,
+    token:  "Start",
     arg:    "iri",
-    vals:   []string(nil),
-    subcmd: []parser.Step(nil),
+    vals:   []string{},
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token:  14,
+    token:  "Or",
     arg:    "",
-    vals:   []string(nil),
+    vals:   []string{},
     subcmd: []parser.Step{
       parser.Step{
-        token:  4,
+        token:  "HasType",
         arg:    "Gremlin",
-        vals:   []string(nil),
-        subcmd: []parser.Step(nil),
+        vals:   []string{},
+        subcmd: []parser.Step{},
       },
       parser.Step{
-        token:  4,
+        token:  "HasType",
         arg:    "GooGrok",
-        vals:   []string(nil),
-        subcmd: []parser.Step(nil),
+        vals:   []string{},
+        subcmd: []parser.Step{},
       },
     },
   },
   parser.Step{
-    token: 6,
+    token: "HasValue",
     arg:   "FurColor",
     vals:  []string{
       "green",
       "blue",
     },
-    subcmd: []parser.Step(nil),
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token:  7,
+    token:  "InScheme",
     arg:    "ex:Animals",
-    vals:   []string(nil),
-    subcmd: []parser.Step(nil),
+    vals:   []string{},
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token: 8,
+    token: "HasBroader",
     arg:   "ex:Fantasy",
     vals:  []string{
       "ex:Preditor",
     },
-    subcmd: []parser.Step(nil),
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token:  10,
+    token:  "Follow",
     arg:    "SmellOfFood",
-    vals:   []string(nil),
-    subcmd: []parser.Step(nil),
+    vals:   []string{},
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token:  4,
+    token:  "HasType",
     arg:    "TastyMeal",
-    vals:   []string(nil),
-    subcmd: []parser.Step(nil),
+    vals:   []string{},
+    subcmd: []parser.Step{},
   },
   parser.Step{
-    token:  3,
+    token:  "Eval",
     arg:    "",
-    vals:   []string(nil),
-    subcmd: []parser.Step(nil),
+    vals:   []string{},
+    subcmd: []parser.Step{},
   },
 }
 ```
